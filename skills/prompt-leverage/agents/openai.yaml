@@ -1,4 +1,0 @@
-interface:
-  display_name: "Prompt Leverage"
-  short_description: "Upgrade raw prompts for execution"
-  default_prompt: "Take the current prompt and upgrade it into a stronger execution-ready prompt with clear objective, context, work style, tool rules, output contract, verification, and done criteria."

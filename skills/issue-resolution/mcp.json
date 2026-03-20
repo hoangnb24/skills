@@ -1,7 +1,0 @@
-{
-	"gkg": {
-		"type": "http",
-		"url": "http://localhost:27495/mcp",
-		"includeTools": ["get_definition", "get_references", "search_codebase_definitions"]
-	}
-}

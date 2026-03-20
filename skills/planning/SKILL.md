@@ -1,289 +1,280 @@
 ---
 name: planning
-description: Generate comprehensive plans for new features by exploring the codebase, synthesizing approaches, validating with spikes, and decomposing into beads. Use when asked to plan a feature, create a roadmap, or design an implementation approach.
+description: >-
+  Research, synthesize, and decompose features into executable beads. Use after
+  exploring skill completes. Runs parallel discovery (architecture, patterns,
+  constraints, external research), oracle synthesis into approach and risk map,
+  multi-perspective refinement for HIGH-stakes features, bead creation via
+  bd create, and execution-plan.md generation. Reads CONTEXT.md from exploring.
+  Writes discovery.md, approach.md, execution-plan.md, and creates .beads/
+  files. Invoked when user says plan this, create beads, research and plan, or
+  when exploring handoff says Invoke planning skill.
 ---
 
-# Feature Planning Pipeline
+# Planning Skill
 
-Generate quality plans through systematic discovery, synthesis, verification, and decomposition.
+Research the codebase, synthesize an approach, and decompose into beads — guided entirely by `CONTEXT.md` from exploring.
+
+> "Planning is the cheapest place to buy correctness. A bug caught in plan space costs 25× less to fix than one caught in code space." — Flywheel Complete Guide
 
 ## Pipeline Overview
 
 ```
-USER REQUEST → Worktree Setup → Discovery → Synthesis → Verification → Decomposition → Validation → Track Planning → Ready Plan
+CONTEXT.md (from exploring)
+  ↓
+Phase 0: Learnings Retrieval      → inject institutional knowledge
+Phase 1: Discovery (4 parallel)   → history/<feature>/discovery.md
+Phase 2: Synthesis (Oracle)       → history/<feature>/approach.md
+Phase 3: Multi-Perspective        → approach.md refined (HIGH-stakes only)
+Phase 4: Decomposition (Beads)    → .beads/*.md via bd create
+Phase 5: Track Planning           → history/<feature>/execution-plan.md
+  ↓
+Handoff: "Invoke validating skill"
 ```
 
-| Phase             | Tool                                     | Output                              |
-| ----------------- | ---------------------------------------- | ----------------------------------- |
-| 0. Worktree Setup | bd worktree                              | Isolated feature branch             |
-| 1. Discovery      | Parallel sub-agents, gkg, Librarian, exa | Discovery Report                    |
-| 2. Synthesis      | Oracle                                   | Approach + Risk Map                 |
-| 3. Verification   | Spikes via MULTI_AGENT_WORKFLOW          | Validated Approach + Learnings      |
-| 4. Decomposition  | file-beads skill                         | .beads/\*.md files                  |
-| 5. Validation     | bv + Oracle                              | Validated dependency graph          |
-| 6. Track Planning | bv --robot-plan                          | Execution plan with parallel tracks |
+## Before You Start
 
-## Phase 0: Worktree Setup (Mandatory)
-
-**Why**: Beads are tracked in git. Without worktrees, branch switching causes conflicts when PRs merge.
-
-**Always create a worktree before creating beads for a feature:**
+**Read CONTEXT.md first.** It is the single source of truth. Every research decision, every bead created, must honor the locked decisions inside it.
 
 ```bash
-# From main repo root
-bd worktree create .worktrees/<feature-name> --branch feature/<feature-name>
-cd .worktrees/<feature-name>
+cat history/<feature>/CONTEXT.md
 ```
 
-This creates a redirect file so all beads operations share the main repo's `.beads/` database. No merge conflicts when PR lands.
+If CONTEXT.md does not exist, stop. Tell the user: "Run the exploring skill first to lock decisions before planning."
 
-**After PR merges:**
+---
+
+## Phase 0: Learnings Retrieval
+
+Institutional knowledge prevents re-solving solved problems. This phase is mandatory — it takes 60 seconds and can save hours.
+
+**Step 1: Always read critical patterns**
 
 ```bash
-cd <main-repo>
-git pull
-bd worktree remove .worktrees/<feature-name>
+cat history/learnings/critical-patterns.md  # Read unconditionally
 ```
 
-**Skip worktree only if**: Quick fix on main that won't create new beads.
+**Step 2: Grep for domain-relevant learnings**
+
+Extract 3-5 domain keywords from the feature name and CONTEXT.md (e.g., "auth", "stripe", "webhook", "upload"). Then run parallel greps:
+
+```bash
+# Run IN PARALLEL, case-insensitive
+grep -r "tags:.*<keyword1>" history/learnings/ -l -i
+grep -r "tags:.*<keyword2>" history/learnings/ -l -i
+grep -r "<ComponentName>" history/learnings/ -l -i
+```
+
+**Step 3: Score and include**
+
+- Strong match (module or tags align) → read full file, include insights in discovery context
+- Weak match → skip
+
+**Step 4: Document what you found**
+
+At the top of `history/<feature>/discovery.md`, add an "Institutional Learnings" section listing any key insights and gotchas surfaced. If nothing found, write: "No prior learnings for this domain."
+
+---
 
 ## Phase 1: Discovery (Parallel Exploration)
 
-Launch parallel sub-agents to gather codebase intelligence:
+Spawn 4 agents simultaneously. Each writes findings to `history/<feature>/discovery.md`.
 
 ```
-Task() → Agent A: Architecture snapshot (gkg repo_map)
-Task() → Agent B: Pattern search (find similar existing code)
-Task() → Agent C: Constraints (package.json, tsconfig, deps)
-Librarian → External patterns ("how do similar projects do this?")
-exa → Library docs (if external integration needed)
+Task() → Agent A: Architecture snapshot
+Task() → Agent B: Pattern search (similar existing code)
+Task() → Agent C: Constraints analysis
+Task() → Agent D: External research
 ```
 
-### Discovery Report Template
+### Agent A: Architecture Snapshot
 
-Save to `history/<feature>/discovery.md`:
-
-```markdown
-# Discovery Report: <Feature Name>
-
-## Architecture Snapshot
-
-- Relevant packages: ...
-- Key modules: ...
-- Entry points: ...
-
-## Existing Patterns
-
-- Similar implementation: <file> does X using Y pattern
-- Reusable utilities: ...
-- Naming conventions: ...
-
-## Technical Constraints
-
-- Node version: ...
-- Key dependencies: ...
-- Build requirements: ...
-
-## External References
-
-- Library docs: ...
-- Similar projects: ...
 ```
+Goal: Map codebase structure relevant to this feature.
+Tools: gkg repo_map, gkg search_codebase_definitions, file tree
+Output sections:
+  - Relevant packages/modules and their purpose
+  - Entry points (API, UI, server)
+  - Key files to model after
+```
+
+### Agent B: Pattern Search
+
+```
+Goal: Find existing implementations similar to this feature.
+Tools: grep (codebase), gkg get_references, semantic search
+Output sections:
+  - Similar existing implementations (file + pattern name)
+  - Reusable utilities (validation, error handling, shared logic)
+  - Naming conventions in use
+```
+
+### Agent C: Constraints Analysis
+
+```
+Goal: Identify hard technical constraints.
+Tools: Read package.json, tsconfig, .env.example, lockfile
+Output sections:
+  - Runtime versions and key framework versions
+  - Existing dependencies relevant to this feature
+  - New dependencies needed (not yet installed)
+  - Build requirements (type-check, lint, test commands)
+```
+
+### Agent D: External Research
+
+```
+Goal: Research external patterns, libraries, prior art.
+Tools: web_search, librarian, library docs (MCP Docker)
+Guided by CONTEXT.md decisions — research the specific patterns
+  the user's locked decisions call for, not generic domain research.
+Output sections:
+  - Library docs for any new dependencies
+  - Community patterns for the approach
+  - Known gotchas and anti-patterns to avoid
+```
+
+**Save all findings to:** `history/<feature>/discovery.md`
+
+See `references/discovery-template.md` for the required structure.
+
+---
 
 ## Phase 2: Synthesis (Oracle)
 
-Feed Discovery Report to Oracle for gap analysis:
+Feed discovery + CONTEXT.md to Oracle for gap analysis and approach design.
 
 ```
 oracle(
-  task: "Analyze gap between current codebase and feature requirements",
-  context: "Discovery report attached. User wants: <feature>",
-  files: ["history/<feature>/discovery.md"]
+  task: "Analyze gap between codebase and feature requirements. 
+         Produce: recommended approach, alternatives considered, 
+         risk map with LOW/MEDIUM/HIGH per component, decision rationale.",
+  context: "CONTEXT.md decisions are LOCKED — honor them exactly.",
+  files: [
+    "history/<feature>/CONTEXT.md",
+    "history/<feature>/discovery.md"
+  ]
 )
 ```
 
-Oracle produces:
+Oracle must produce all four sections:
 
-1. **Gap Analysis** - What exists vs what's needed
-2. **Approach Options** - 1-3 strategies with tradeoffs
-3. **Risk Assessment** - LOW / MEDIUM / HIGH per component
+1. **Recommended Approach** — specific strategy, not "option A vs B"
+2. **Alternatives Considered** — what was evaluated and rejected, and why
+3. **Risk Map** — every component rated LOW/MEDIUM/HIGH with rationale
+4. **Decision Rationale** — why this approach over alternatives
 
 ### Risk Classification
 
-| Level  | Criteria                      | Verification                 |
-| ------ | ----------------------------- | ---------------------------- |
-| LOW    | Pattern exists in codebase    | Proceed                      |
-| MEDIUM | Variation of existing pattern | Interface sketch, type-check |
-| HIGH   | Novel or external integration | Spike required               |
-
-### Risk Indicators
+| Level | Criteria | Action |
+|-------|----------|--------|
+| LOW | Pattern exists in codebase | Proceed |
+| MEDIUM | Variation of existing pattern | Interface sketch optional |
+| HIGH | Novel, external dep, blast radius >5 files | Note for validating to spike |
 
 ```
-Pattern exists in codebase? ─── YES → LOW base
-                            └── NO  → MEDIUM+ base
-
-External dependency? ─── YES → HIGH
-                     └── NO  → Check blast radius
-
-Blast radius >5 files? ─── YES → HIGH
-                       └── NO  → MEDIUM
+Pattern in codebase? → YES = LOW base
+External dependency?  → YES = HIGH
+Blast radius >5 files? → YES = HIGH
+Otherwise → MEDIUM
 ```
 
-Save to `history/<feature>/approach.md`:
+**Save to:** `history/<feature>/approach.md`
+
+See `references/approach-template.md` for the required structure.
+
+---
+
+## Phase 3: Multi-Perspective Refinement
+
+**Only for HIGH-stakes features** (multiple HIGH-risk components, architectural decisions with long-term consequences, or features touching core infrastructure).
+
+For standard features, skip to Phase 4.
+
+### When to Apply
+
+Run Phase 3 if approach.md contains 2+ HIGH-risk components, OR if the feature is architectural in nature (changes data models, API contracts, auth flows, etc.).
+
+### How to Run
+
+Spawn a subagent (or use a fresh context) with only the approach.md and this adversarial prompt:
+
+```
+You are a senior architect reviewing this plan for blind spots.
+
+Read: history/<feature>/approach.md
+
+Answer:
+1. What does this approach assume that could be wrong?
+2. What failure modes are not addressed?
+3. What will the team regret 6 months from now?
+4. What's missing from the risk map?
+
+Be specific. Cite sections. Suggest concrete changes.
+```
+
+Iterate approach.md 1-2 rounds based on findings. Stop when changes are incremental.
+
+**Do not run 4-5 refinement rounds** — that is the Flywheel's extreme methodology. 1-2 rounds is sufficient for khuym's workflow.
+
+---
+
+## Phase 4: Decomposition (Beads)
+
+Convert approach.md into executable beads using `bd create`. Never write pseudo-beads in markdown — go directly to the CLI.
+
+### Bead Requirements (Non-Negotiable)
+
+Every bead MUST include:
+- **Clear title** — action-oriented, e.g., "Implement StripeWebhookHandler" not "Webhook"
+- **Description** — what, why, how; enough that a fresh agent can implement without asking questions
+- **File scope** — which files this bead touches (for track assignment)
+- **Dependencies** — explicit bead IDs it depends on (use `--deps`)
+- **Verification criteria** — how the agent knows it's done
+
+### Embed Learnings in Beads
+
+For any HIGH-risk component, embed the relevant institutional learnings and approach decisions directly in the bead description:
 
 ```markdown
-# Approach: <Feature Name>
+## Context from Planning
 
-## Gap Analysis
+From approach.md: [the specific decision that applies to this bead]
 
-| Component | Have | Need | Gap |
-| --------- | ---- | ---- | --- |
-| ...       | ...  | ...  | ... |
+## Institutional Learnings
 
-## Recommended Approach
-
-<Description>
-
-### Alternative Approaches
-
-1. <Option A> - Tradeoff: ...
-2. <Option B> - Tradeoff: ...
-
-## Risk Map
-
-| Component   | Risk | Reason           | Verification |
-| ----------- | ---- | ---------------- | ------------ |
-| Stripe SDK  | HIGH | New external dep | Spike        |
-| User entity | LOW  | Follows existing | Proceed      |
+From history/learnings/<file>:
+- [Key gotcha or pattern that applies here]
 ```
 
-## Phase 3: Verification (Risk-Based)
-
-### For HIGH Risk Items → Create Spike Beads
-
-Spikes are mini-plans executed via MULTI_AGENT_WORKFLOW:
+### Create Epic First, Then Tasks
 
 ```bash
-bd create "Spike: <question to answer>" -t epic -p 0
-bd create "Spike: Test X" -t task --blocks <spike-epic>
-bd create "Spike: Verify Y" -t task --blocks <spike-epic>
+# Create epic
+bd create "<Feature Name>" -t epic -p 1
+# → bd-<epic-id>
+
+# Create task beads, each blocking the epic
+bd create "<Action: Component>" -t task --blocks bd-<epic-id>
+# → bd-<id>
+
+# Add dependencies between tasks
+bd dep add bd-<id2> bd-<id1>  # id2 depends on id1
 ```
 
-### Spike Bead Template
+### Bead Decomposition Principles
 
-```markdown
-# Spike: <specific question>
+- One bead = one agent, one context window, ~30-90 minutes of work
+- Domain layer beads have no inter-bead dependencies (can parallelize)
+- Infrastructure/application layers depend on domain beads
+- API/UI layers depend on application beads
+- Never create a bead that requires reading 10+ files to implement
 
-**Time-box**: 30 minutes
-**Output location**: .spikes/<spike-id>/
+---
 
-## Question
+## Phase 5: Track Planning
 
-Can we <specific technical question>?
-
-## Success Criteria
-
-- [ ] Working throwaway code exists
-- [ ] Answer documented (yes/no + details)
-- [ ] Learnings captured for main plan
-
-## On Completion
-
-Close with: `bd close <id> --reason "YES: <approach>" or "NO: <blocker>"`
-```
-
-### Execute Spikes
-
-Use the MULTI_AGENT_WORKFLOW:
-
-1. `bv --robot-plan` to parallelize spikes
-2. `Task()` per spike with time-box
-3. Workers write to `.spikes/<feature>/<spike-id>/`
-4. Close with learnings: `bd close <id> --reason "<result>"`
-
-### Aggregate Spike Results
-
-```
-oracle(
-  task: "Synthesize spike results and update approach",
-  context: "Spikes completed. Results: ...",
-  files: ["history/<feature>/approach.md"]
-)
-```
-
-Update approach.md with validated learnings.
-
-## Phase 4: Decomposition (file-beads skill)
-
-Load the file-beads skill and create beads with embedded learnings:
-
-```bash
-skill("file-beads")
-```
-
-### Bead Requirements
-
-Each bead MUST include:
-
-- **Spike learnings** embedded in description (if applicable)
-- **Reference to .spikes/ code** for HIGH risk items
-- **Clear acceptance criteria**
-- **File scope** for track assignment
-
-### Example Bead with Learnings
-
-```markdown
-# Implement Stripe webhook handler
-
-## Context
-
-Spike bd-12 validated: Stripe SDK works with our Node version.
-See `.spikes/billing-spike/webhook-test/` for working example.
-
-## Learnings from Spike
-
-- Must use `stripe.webhooks.constructEvent()` for signature verification
-- Webhook secret stored in `STRIPE_WEBHOOK_SECRET` env var
-- Raw body required (not parsed JSON)
-
-## Acceptance Criteria
-
-- [ ] Webhook endpoint at `/api/webhooks/stripe`
-- [ ] Signature verification implemented
-- [ ] Events: `checkout.session.completed`, `invoice.paid`
-```
-
-## Phase 5: Validation
-
-### Run bv Analysis
-
-```bash
-bv --robot-suggest   # Find missing dependencies
-bv --robot-insights  # Detect cycles, bottlenecks
-bv --robot-priority  # Validate priorities
-```
-
-### Fix Issues
-
-```bash
-bd dep add <from> <to>      # Add missing deps
-bd dep remove <from> <to>   # Break cycles
-bd update <id> --priority X # Adjust priorities
-```
-
-### Oracle Final Review
-
-```
-oracle(
-  task: "Review plan completeness and clarity",
-  context: "Plan ready. Check for gaps, unclear beads, missing deps.",
-  files: [".beads/"]
-)
-```
-
-## Phase 6: Track Planning
-
-This phase creates an **execution-ready plan** so the orchestrator can spawn workers immediately without re-analyzing beads.
+Generate execution-plan.md so the swarming skill can spawn workers immediately.
 
 ### Step 1: Get Parallel Tracks
 
@@ -293,27 +284,17 @@ bv --robot-plan 2>/dev/null | jq '.plan.tracks'
 
 ### Step 2: Assign File Scopes
 
-For each track, determine the file scope based on beads in that track:
+For each track:
+- Identify files touched by each bead in the track
+- Use glob patterns: `packages/domain/**`, `apps/server/**`
+- File scopes MUST NOT overlap between tracks
+- If overlap is unavoidable → merge into one track
 
-```bash
-# For each bead, check which files it touches
-bd show <bead-id>  # Look at description for file hints
-```
+### Step 3: Assign Agent Names
 
-**Rules:**
+Give each track a memorable adjective+noun name (BlueLake, GreenCastle, RedStone). These are identifiers, not role descriptions.
 
-- File scopes must NOT overlap between tracks
-- Use glob patterns: `packages/sdk/**`, `apps/server/**`
-- If overlap unavoidable, merge into single track
-
-### Step 3: Generate Agent Names
-
-Assign unique adjective+noun names to each track:
-
-- BlueLake, GreenCastle, RedStone, PurpleBear, etc.
-- Names are memorable identifiers, NOT role descriptions
-
-### Step 4: Create Execution Plan
+### Step 4: Write Execution Plan
 
 Save to `history/<feature>/execution-plan.md`:
 
@@ -329,93 +310,122 @@ Generated: <date>
 | ----- | ----------- | --------------------- | ----------------- |
 | 1     | BlueLake    | bd-10 → bd-11 → bd-12 | `packages/sdk/**` |
 | 2     | GreenCastle | bd-20 → bd-21         | `packages/cli/**` |
-| 3     | RedStone    | bd-30 → bd-31 → bd-32 | `apps/server/**`  |
 
 ## Track Details
 
-### Track 1: BlueLake - <track-description>
+### Track 1: BlueLake
 
 **File scope**: `packages/sdk/**`
 **Beads**:
-
-1. `bd-10`: <title> - <brief description>
-2. `bd-11`: <title> - <brief description>
-3. `bd-12`: <title> - <brief description>
-
-### Track 2: GreenCastle - <track-description>
-
-**File scope**: `packages/cli/**`
-**Beads**:
-
-1. `bd-20`: <title> - <brief description>
-2. `bd-21`: <title> - <brief description>
-
-### Track 3: RedStone - <track-description>
-
-**File scope**: `apps/server/**`
-**Beads**:
-
-1. `bd-30`: <title> - <brief description>
-2. `bd-31`: <title> - <brief description>
-3. `bd-32`: <title> - <brief description>
+1. `bd-10`: <title> — <brief description>
 
 ## Cross-Track Dependencies
 
-- Track 2 can start after bd-11 (Track 1) completes
-- Track 3 has no cross-track dependencies
+- Track 2 can start after bd-11 completes
+- Track 3 is independent
 
-## Key Learnings (from Spikes)
+## Wave Assignments
 
-Embedded in beads, but summarized here for orchestrator reference:
+Wave 1 (independent): Track 1, Track 2
+Wave 2 (after Wave 1): Track 3
 
-- <learning 1>
-- <learning 2>
+## Key Decisions (from approach.md)
+
+- [Summary of architectural choices for swarming context]
 ```
 
-### Validation
-
-Before finalizing, verify:
+### Step 5: Validate Graph
 
 ```bash
-# No cycles in the graph
-bv --robot-insights 2>/dev/null | jq '.Cycles'
-
-# All beads assigned to tracks
-bv --robot-plan 2>/dev/null | jq '.plan.unassigned'
+bv --robot-insights 2>/dev/null | jq '.Cycles'    # Must be empty
+bv --robot-plan 2>/dev/null | jq '.plan.unassigned'  # Must be empty
 ```
 
-## Output Artifacts
+Fix any cycles or unassigned beads before handoff.
 
-| Artifact          | Location                              | Purpose                            |
-| ----------------- | ------------------------------------- | ---------------------------------- |
-| Discovery Report  | `history/<feature>/discovery.md`      | Codebase snapshot                  |
-| Approach Document | `history/<feature>/approach.md`       | Strategy + risks                   |
-| Spike Code        | `.spikes/<feature>/`                  | Reference implementations          |
-| Spike Learnings   | Embedded in beads                     | Context for workers                |
-| Beads             | `.beads/*.md`                         | Executable work items              |
-| Execution Plan    | `history/<feature>/execution-plan.md` | Track assignments for orchestrator |
+---
 
-## Quick Reference
+## Update STATE.md
 
-### Tool Selection
+After every major phase transition, update `.khuym/STATE.md`:
 
-| Need               | Tool                                                                        |
-| ------------------ | --------------------------------------------------------------------------- |
-| Codebase structure | `mcp__gkg__repo_map`                                                        |
-| Find definitions   | `mcp__gkg__search_codebase_definitions`                                     |
-| Find usages        | `mcp__gkg__get_references`                                                  |
-| Semantic search    | `mcp__morph_mcp__warpgrep_codebase_search`                                  |
-| External patterns  | `librarian`                                                                 |
-| Library docs       | `mcp__MCP_DOCKER__resolve-library-id` → `mcp__MCP_DOCKER__get-library-docs` |
-| Web research       | `mcp__MCP_DOCKER__web_search_exa`                                           |
-| Gap analysis       | `oracle`                                                                    |
-| Create beads       | `skill("file-beads")` + `bd create`                                         |
-| Validate graph     | `bv --robot-*`                                                              |
+```markdown
+## Current State
 
-### Common Mistakes
+Skill: planning
+Phase: [current phase name]
+Feature: <feature-name>
 
-- **Skipping discovery** → Plan misses existing patterns
-- **No risk assessment** → Surprises during execution
-- **No spikes for HIGH risk** → Blocked workers
-- **Missing learnings in beads** → Workers re-discover same issues
-- **No bv validation** → Broken dependency graph
+## Artifacts Written
+
+- history/<feature>/discovery.md ← Phase 1 complete
+- history/<feature>/approach.md ← Phase 2 complete
+- .beads/*.md ← Phase 4 complete
+- history/<feature>/execution-plan.md ← Phase 5 complete
+
+## Beads Created
+
+N beads in M tracks. Epic: bd-<id>
+
+## Risk Summary
+
+HIGH-risk components: [list] → flagged for validating to spike
+```
+
+---
+
+## Context Budget
+
+If context exceeds 65% at any phase transition, write `HANDOFF.json` and pause:
+
+```json
+{
+  "skill": "planning",
+  "feature": "<feature-name>",
+  "completed_through": "Phase <N>",
+  "next_phase": "Phase <N+1>",
+  "artifacts": ["list of written files"],
+  "beads_created": ["list of bead IDs"]
+}
+```
+
+---
+
+## Handoff
+
+On successful completion:
+
+> **Plan created with N beads in M tracks.**
+>
+> - Discovery: `history/<feature>/discovery.md`
+> - Approach: `history/<feature>/approach.md`
+> - Execution plan: `history/<feature>/execution-plan.md`
+> - HIGH-risk components flagged: [list or "none"]
+>
+> **Invoke validating skill before execution.**
+
+HARD-GATE: Do not hand off to swarming directly. Validating is the gate that verifies plan correctness before any code is written.
+
+---
+
+## Boundary Clarifications
+
+**Planning READS** `CONTEXT.md` — it does NOT modify or override locked decisions.
+
+**Planning CREATES** draft beads — validating will verify and polish them.
+
+**Planning does the research** that exploring deliberately avoided. Exploring locks decisions; planning researches how to honor them.
+
+**Planning does NOT run spikes** — that is validating's job (validating Phase 2).
+
+---
+
+## Red Flags
+
+- **Skipping Phase 0** — You will re-discover learnings the team already has. Always read critical-patterns.md.
+- **Ignoring CONTEXT.md** — You produce a plan the user didn't ask for. Locked decisions are locked.
+- **Writing pseudo-beads in markdown** — Beads that aren't created with `bd create` don't exist in the graph. Go to the CLI.
+- **Beads with no file scope** — The swarming skill cannot assign tracks without file scopes.
+- **HIGH-risk items with no risk flag** — Validating needs to know which items require spikes. Mark them clearly in approach.md.
+- **Missing dependencies between beads** — The bv dependency graph breaks. Use `bd dep add` explicitly.
+- **Skipping bv validation** — Cycles and unassigned beads will break the swarm. Run the checks.
