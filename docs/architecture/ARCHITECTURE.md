@@ -16,6 +16,16 @@ Rules:
 - if a skill doc disagrees with this file, this file wins and the skill doc must be updated
 - Flywheel and GSD are upstream references that inform Khuym; they are not the direct runtime contract for this repo
 
+## Canonical Delegation Contract: Subagent
+
+Khuym uses `Subagent` as the canonical term for spawned specialist work. This contract is behavioral, not runtime-specific.
+
+- A `Subagent` is a bounded specialist context spawned by another agent to perform a clearly scoped task. Khuym does not define this as a Codex-only API or any other native runtime primitive.
+- The parent or orchestrating agent remains in control. It decides when to spawn a subagent, what scope to give it, and what happens next after the result comes back.
+- Subagents receive scoped, task-specific context by default. Full parent-context inheritance is explicit and exceptional, not the default.
+- The preferred handback shape is actionable: summary, concrete outputs or changed files, and blockers, risks, or next steps. This is a recommended default, not a mandatory repo-wide schema; individual skills may define the exact return format they need.
+- Older references to `Task tool` describe legacy runtime wording only. `Subagent` is the canonical architecture term going forward.
+
 ---
 
 ## What v1 Got Wrong
@@ -69,9 +79,9 @@ GSD's key insight: **"Plans are not executed until they pass verification."** Th
 |---|---|---|---|
 | 1 | `using-khuym` | Meta/Bootstrap | Lists skills, priority rules, go mode, red flags |
 | 2 | `exploring` | GSD discuss-phase + Superpowers brainstorming | Gray area identification, Socratic Q&A, CONTEXT.md — **decisions before research** |
-| 3 | `planning` | Flywheel Phase 1-3 + GSD research+plan | Discovery (gkg, parallel agents), synthesis (Task subagent), approach + risk map, multi-perspective refinement |
+| 3 | `planning` | Flywheel Phase 1-3 + GSD research+plan | Discovery (gkg, parallel subagents), synthesis (subagent), approach + risk map, multi-perspective refinement |
 | 4 | `validating` | GSD plan-checker + Flywheel bead polishing + V3 spike phase | **The gate.** Plan verification (3 iterations), spike execution for HIGH risk, bead polishing (multiple rounds), bv validation. Nothing executes until this passes. |
-| 5 | `swarming` | Flywheel Phase 6-7 (launch + tend) | Agent Mail setup, spawn parallel workers (Task tool), monitor, handle blockers, broadcast corrections, tend the swarm |
+| 5 | `swarming` | Flywheel Phase 6-7 (launch + tend) | Agent Mail setup, spawn parallel worker subagents, monitor, handle blockers, broadcast corrections, tend the swarm |
 | 6 | `executing` | Flywheel per-agent loop | Single worker: register → bv --robot-priority → reserve files → implement bead → br close → report → loop |
 | 7 | `reviewing` | Flywheel Phase 8 + CE review + GSD verify-work | 4-5 review agents, 3-level artifact verification, P1/P2/P3 findings, human UAT gate |
 | 8 | `compounding` | CE compound loop + Flywheel CASS/CM feedback | Capture learnings (patterns/decisions/failures) → history/learnings/, critical-patterns.md, optional CASS indexing |
@@ -169,14 +179,14 @@ Phase 0: Learnings Retrieval (from CE compound loop)
 
 Phase 1: Discovery (Goal-Oriented Exploration)
   → Assess scope from CONTEXT.md + feature type
-  → Spawn parallel Task() agents for independent exploration areas
+  → Spawn parallel subagents for independent exploration areas
   → Available tools: gkg (repo_map, search_codebase_definitions,
     get_references, import_usage, read_definitions), grep, Read,
     web_search, WebFetch
   → Output: history/<feature>/discovery.md
 
 Phase 2: Synthesis (Subagent)
-  → Task() → Synthesis agent reads discovery.md + CONTEXT.md
+  → Spawn synthesis subagent with discovery.md + CONTEXT.md
   → Prompt: gap analysis + recommended approach + risk classification
   → Output: Approach + Risk Map (4 sections)
   → CRITICAL: Risk classification → LOW/MEDIUM/HIGH
@@ -228,7 +238,7 @@ Phase 1: Plan Verification (from GSD plan-checker, max 3 iterations)
 Phase 2: Spike Execution (for HIGH-risk items — from V3 synthesis)
   → For each HIGH-risk component identified in approach.md:
     → Create spike bead: br create "Spike: <question>" -t task -p 0
-    → Execute spike in isolated context (Task tool, time-boxed 30 min)
+    → Execute spike in isolated subagent context (time-boxed 30 min)
     → Spike writes to .spikes/<feature>/<spike-id>/
     → Close with finding: br close <id> --reason "YES: <approach>" or "NO: <blocker>"
   → If spike fails → STOP. Revise approach, go back to planning
@@ -275,7 +285,7 @@ skills/validating/
 
 **Source:** Flywheel Phase 6-7 (Launch + Tend) + existing `orchestrator` skill
 
-**Why "swarming":** The Flywheel's execution model is specifically a swarm — multiple agents launched in parallel, coordinated via Agent Mail, and tended by a human/overseer. In Khuym, this is expressed in Codex terms rather than literal `ntm` commands, but the behavioral contract is the same.
+**Why "swarming":** The Flywheel's execution model is specifically a swarm — multiple agents launched in parallel, coordinated via Agent Mail, and tended by a human or overseer. In Khuym, the canonical contract is manager-pattern delegation: the orchestrator stays in control, launches bounded worker subagents, and decides what happens next from their handbacks. Specific runtimes may expose different spawn APIs, but the architecture contract stays the same.
 
 **Process:**
 ```
@@ -290,8 +300,10 @@ Phase 2: Initialize Agent Mail
   → Post swarm start notification
 
 Phase 3: Spawn Workers
-  → Task tool: spawn worker with executing skill loaded
+  → Spawn worker subagents with executing skill loaded
   → Provide: epic thread, Agent Mail identity, feature context, optional startup hint
+  → Default to scoped context; inherit broader parent context only when the task truly needs it
+  → Worker handbacks should be actionable (summary, concrete outputs or changed files, blockers/risks/next steps) unless a skill defines a narrower format
   → Workers are self-routing, not permanently assigned tracks or waves
 
 Phase 4: Monitor + Tend
@@ -414,7 +426,7 @@ validating                         ← "Is this plan actually sound?" ★ THE GA
 │ GATE: "Approve for execution?"
 ▼
 swarming                           ← "Launch the agents"
-│ Spawn workers (Task tool)        ← Each worker loads executing skill
+│ Spawn worker subagents           ← Each worker loads executing skill
 │ Monitor via Agent Mail           ← Tend the swarm
 ├── executing (×N parallel)        ← Per-bead self-routing loop
 │   └── bv --robot-priority → implement → close → report → next bead
