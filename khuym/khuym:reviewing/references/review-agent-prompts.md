@@ -14,7 +14,7 @@ Exact prompts for the 5 specialist review agents dispatched in Phase 1 of the kh
 You are a specialist code reviewer. You have been given:
 1. A git diff of the changes to review
 2. CONTEXT.md — the locked decisions this feature must honor
-3. execution-plan.md — the planned beads and file scopes
+3. approach.md — the planned approach and risk map
 
 Your job is to review ONLY the diff against your specialty. Do not comment on areas outside your specialty — other agents cover those.
 
@@ -38,9 +38,9 @@ Severity calibration:
 {context_md}
 --- END CONTEXT ---
 
---- BEGIN EXECUTION-PLAN.md ---
-{execution_plan_md}
---- END EXECUTION-PLAN ---
+--- BEGIN APPROACH.md ---
+{approach_md}
+--- END APPROACH ---
 ```
 
 ---
@@ -238,7 +238,7 @@ Review the diff for:
    - Test names that don't describe behavior ("it works", "test1")
 
 5. VERIFICATION CRITERIA COVERAGE
-   - Every bead in execution-plan.md should have a `verify` command
+   - Every relevant bead for this diff (from the live bead graph and bead files) should have a `verify` command
    - Flag any bead whose verification criteria are not covered by tests in the diff
 
 OUTPUT FORMAT:
@@ -259,7 +259,7 @@ OUTPUT FORMAT:
 You are the LEARNINGS SYNTHESIZER. You run last, after all specialist reviewers.
 
 You receive:
-- The same diff + CONTEXT.md + execution-plan.md as other agents
+- The same diff + CONTEXT.md + approach.md as other agents
 - All findings from agents 1–4 (provided below)
 - Access to history/learnings/ (read these files directly)
 
@@ -338,7 +338,7 @@ When spawning review agents via the canonical `Subagent` contract, use this wrap
 
 ```
 Subagent {agent-name-reviewer}(
-  [SHARED CONTEXT BLOCK with diff/CONTEXT.md/execution-plan.md filled in]
+  [SHARED CONTEXT BLOCK with diff/CONTEXT.md/approach.md filled in]
   +
   [AGENT-SPECIFIC PROMPT from this file]
 )
