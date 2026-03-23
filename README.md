@@ -9,22 +9,22 @@ Development workspace for Claude Code skills — both the **Khuym** agentic deve
 A 9+2 skill chain for agentic software development, built on beads (`br`), bead viewer (`bv`), and Agent Mail. Skills chain together to move from vague requirements to shipped, reviewed, compounded code.
 
 ```
-exploring → planning → validating → swarming → executing(×N) → reviewing → compounding
+khuym:exploring → khuym:planning → khuym:validating → khuym:swarming → khuym:executing(×N) → khuym:reviewing → khuym:compounding
 ```
 
 | Skill | Purpose |
 |-------|---------|
-| `using-khuym` | Bootstrap meta-skill — routing, go mode, state resume |
-| `exploring` | Socratic dialogue → locked decisions in CONTEXT.md |
-| `planning` | Research + synthesis → approach.md + beads |
-| `validating` | Plan verification (8 dims) + spikes + bead polishing — **THE GATE** |
-| `swarming` | Launch + tend parallel worker agents via Agent Mail |
-| `executing` | Per-agent worker loop: priority → reserve → implement → close |
-| `reviewing` | 5 review agents + 3-level verification + UAT |
-| `compounding` | Capture learnings → history/learnings/ |
-| `writing-khuym-skills` | TDD-for-skills meta-skill |
-| `debugging` | Systematic debugging for blocked workers (support) |
-| `gkg` | Codebase intelligence via gkg tool (support) |
+| `khuym:using-khuym` | Bootstrap meta-skill — routing, go mode, state resume |
+| `khuym:exploring` | Socratic dialogue → locked decisions in CONTEXT.md |
+| `khuym:planning` | Research + synthesis → approach.md + beads |
+| `khuym:validating` | Plan verification (8 dims) + spikes + bead polishing — **THE GATE** |
+| `khuym:swarming` | Launch + tend parallel worker agents via Agent Mail |
+| `khuym:executing` | Per-agent worker loop: priority → reserve → implement → close |
+| `khuym:reviewing` | 5 review agents + 3-level verification + UAT |
+| `khuym:compounding` | Capture learnings → history/learnings/ |
+| `khuym:writing-khuym-skills` | TDD-for-skills meta-skill |
+| `khuym:debugging` | Systematic debugging for blocked workers (support) |
+| `khuym:gkg` | Codebase intelligence via gkg tool (support) |
 
 **Go Mode Gates:**
 - **GATE 1** (after exploring): "Approve decisions/CONTEXT.md?"

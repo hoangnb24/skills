@@ -9,69 +9,69 @@
   },
   "plugins": [
     {
-      "name": "using-khuym",
+      "name": "khuym:using-khuym",
       "description": "Bootstrap meta-skill: routing, go mode, skill catalog, state bootstrap/resume",
-      "source": "./khuym/using-khuym",
+      "source": "./khuym/khuym:using-khuym",
       "strict": false
     },
     {
-      "name": "exploring",
+      "name": "khuym:exploring",
       "description": "Extract locked decisions via Socratic dialogue before planning begins",
-      "source": "./khuym/exploring",
+      "source": "./khuym/khuym:exploring",
       "strict": false
     },
     {
-      "name": "planning",
+      "name": "khuym:planning",
       "description": "Research codebase, synthesize approach, decompose into executable beads",
-      "source": "./khuym/planning",
+      "source": "./khuym/khuym:planning",
       "strict": false
     },
     {
-      "name": "validating",
+      "name": "khuym:validating",
       "description": "Plan verification (8 dimensions), spike execution for HIGH risk, bead polishing",
-      "source": "./khuym/validating",
+      "source": "./khuym/khuym:validating",
       "strict": false
     },
     {
-      "name": "swarming",
+      "name": "khuym:swarming",
       "description": "Launch and tend parallel worker agents via Agent Mail",
-      "source": "./khuym/swarming",
+      "source": "./khuym/khuym:swarming",
       "strict": false
     },
     {
-      "name": "executing",
+      "name": "khuym:executing",
       "description": "Per-agent worker loop: self-route from bead graph, implement, close, report",
-      "source": "./khuym/executing",
+      "source": "./khuym/khuym:executing",
       "strict": false
     },
     {
-      "name": "reviewing",
+      "name": "khuym:reviewing",
       "description": "5 parallel review agents, 3-level artifact verification, UAT gate",
-      "source": "./khuym/reviewing",
+      "source": "./khuym/khuym:reviewing",
       "strict": false
     },
     {
-      "name": "compounding",
+      "name": "khuym:compounding",
       "description": "Capture learnings (patterns/decisions/failures) into history/learnings/",
-      "source": "./khuym/compounding",
+      "source": "./khuym/khuym:compounding",
       "strict": false
     },
     {
-      "name": "debugging",
+      "name": "khuym:debugging",
       "description": "Systematic debugging for blocked workers, test failures, and build errors",
-      "source": "./khuym/debugging",
+      "source": "./khuym/khuym:debugging",
       "strict": false
     },
     {
-      "name": "gkg",
+      "name": "khuym:gkg",
       "description": "Codebase intelligence via gkg tool for architecture and dependency analysis",
-      "source": "./khuym/gkg",
+      "source": "./khuym/khuym:gkg",
       "strict": false
     },
     {
-      "name": "writing-khuym-skills",
+      "name": "khuym:writing-khuym-skills",
       "description": "TDD-for-skills meta-skill with pressure testing and persuasion psychology",
-      "source": "./khuym/writing-khuym-skills",
+      "source": "./khuym/khuym:writing-khuym-skills",
       "strict": false
     },
     {
