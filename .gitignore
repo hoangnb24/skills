@@ -1,6 +1,5 @@
 node_modules/
 coverage/
-standalone/instruction-distiller
 tests
 scripts
 package*

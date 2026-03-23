@@ -14,7 +14,6 @@
     { "name": "debugging", "path": "../khuym/debugging/SKILL.md" },
     { "name": "gkg", "path": "../khuym/gkg/SKILL.md" },
     { "name": "writing-khuym-skills", "path": "../khuym/writing-khuym-skills/SKILL.md" },
-    { "name": "book-sft-pipeline", "path": "../standalone/book-sft-pipeline/SKILL.md" },
-    { "name": "instruction-distiller", "path": "../standalone/instruction-distiller/SKILL.md" }
+    { "name": "book-sft-pipeline", "path": "../standalone/book-sft-pipeline/SKILL.md" }
   ]
 }

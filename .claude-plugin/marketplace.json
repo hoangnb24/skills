@@ -79,12 +79,6 @@
       "description": "Convert books into SFT datasets for training style-transfer models",
       "source": "./standalone/book-sft-pipeline",
       "strict": false
-    },
-    {
-      "name": "instruction-distiller",
-      "description": "Distill AI instructions into structured, consumable formats",
-      "source": "./standalone/instruction-distiller",
-      "strict": false
     }
   ]
 }

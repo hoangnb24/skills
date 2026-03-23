@@ -40,7 +40,6 @@ Independent utility skills not part of the khuym chain.
 | Skill | Description |
 |-------|-------------|
 | `book-sft-pipeline` | Convert books into SFT datasets for training style-transfer models |
-| `instruction-distiller` | Distill AI instructions into structured, consumable formats |
 
 ## Skill Format
 
