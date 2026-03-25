@@ -1,16 +1,38 @@
-# Skills
+# Khuym Skills
 
-Development workspace for Claude Code skills — both the **Khuym** agentic development ecosystem and standalone utilities.
+Khuym is a validate-first workflow for agentic software development. It is built for teams that want to turn ambiguous requests into reviewed, production-ready changes without skipping planning or quality gates.
+
+This repository is the working surface for that system. The root README is the front door for the workflow; [`docs/architecture/ARCHITECTURE.md`](/Users/themrb/Documents/personal/skills/docs/architecture/ARCHITECTURE.md) is the detailed canonical contract.
+
+## Workflow First
+
+Khuym treats software delivery as a staged chain where each skill hands off explicit artifacts to the next stage:
+
+- `khuym:exploring` extracts decisions and locks them in `CONTEXT.md`
+- `khuym:planning` researches and decomposes implementation into executable beads
+- `khuym:validating` verifies the plan and bead graph before execution begins
+- `khuym:swarming` launches and coordinates worker subagents
+- `khuym:executing` runs the worker loop (claim, reserve, implement, verify, close)
+- `khuym:reviewing` performs multi-agent review plus acceptance checks
+- `khuym:compounding` captures learnings for future work
+
+```
+khuym:exploring → khuym:planning → khuym:validating → khuym:swarming → khuym:executing(×N) → khuym:reviewing → khuym:compounding
+```
+
+The main differentiator is that execution is intentionally gated: the system does not proceed from planning into implementation until validation passes.
+
+## Human Gates
+
+- **GATE 1** (after exploring): "Approve decisions/CONTEXT.md?"
+- **GATE 2** (after validating): "Beads verified. Approve execution?"
+- **GATE 3** (after reviewing): "P1 findings. Fix before merge?"
 
 ## Skill Families
 
 ### Khuym Ecosystem (`khuym/`)
 
-A 9+2 skill chain for agentic software development, built on beads (`br`), bead viewer (`bv`), and Agent Mail. Skills chain together to move from vague requirements to shipped, reviewed, compounded code.
-
-```
-khuym:exploring → khuym:planning → khuym:validating → khuym:swarming → khuym:executing(×N) → khuym:reviewing → khuym:compounding
-```
+The Khuym ecosystem is the primary story in this repository: a coordinated chain built around beads (`br`), bead viewer (`bv`), and Agent Mail.
 
 | Skill | Purpose |
 |-------|---------|
