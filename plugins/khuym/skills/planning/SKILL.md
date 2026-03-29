@@ -13,6 +13,8 @@ description: >-
 
 # Planning Skill
 
+If `.khuym/onboarding.json` is missing or stale for the current repo, stop and invoke `khuym:using-khuym` before continuing.
+
 Research the codebase, synthesize an approach, and decompose into beads — guided entirely by `CONTEXT.md` from exploring.
 
 > "Planning is the cheapest place to buy correctness. A bug caught in plan space costs 25× less to fix than one caught in code space." — Flywheel Complete Guide

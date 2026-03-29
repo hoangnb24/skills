@@ -2,13 +2,39 @@
 name: khuym:using-khuym
 description: Bootstrap meta-skill for the khuym agentic development ecosystem. Load first on any khuym project. Lists all 9+2 skills with routing logic, go mode (full-auto pipeline with 3 human gates), quick mode for small fixes, priority rules, red flags, and state bootstrap/resume. Invoke when starting a new session, choosing which skill to use, running the full pipeline end-to-end, or resuming after a handoff.
 metadata:
-  version: '2.0'
+  version: '2.1'
   ecosystem: khuym
 ---
 
 # using-khuym
 
 Bootstrap meta-skill. Load this first. It tells you which skill to invoke next and how the ecosystem chains together.
+
+---
+
+## Plugin Onboarding
+
+Before any normal bootstrap, verify that the current repo is onboarded for the Khuym plugin.
+
+Run `scripts/onboard_khuym.py --repo-root <repo-root>` from this skill directory and inspect the JSON result.
+
+- If `status = "up_to_date"`: proceed immediately.
+- If onboarding is missing or stale:
+  - summarize what the script wants to create or update
+  - if `requires_confirmation = true`, explain that an existing `compact_prompt` was found and Khuym will preserve it unless the user explicitly approves replacement
+  - ask before making repo changes
+  - after approval, run `scripts/onboard_khuym.py --repo-root <repo-root> --apply`
+  - only use `--allow-compact-prompt-replace` when the user explicitly approved replacing the repo's existing compaction prompt
+
+Onboarding installs or updates:
+
+- root `AGENTS.md` from the plugin's `AGENTS.template.md`
+- repo-local `.codex/config.toml`
+- repo-local `.codex/hooks.json`
+- repo-local `.codex/hooks/khuym_*.py`
+- `.khuym/onboarding.json`
+
+If onboarding is not complete, do not continue into the rest of the Khuym workflow.
 
 ---
 
@@ -55,6 +81,9 @@ Given a user request, determine which skill to invoke first:
 On every session start, before doing anything else:
 
 ```
+0. Confirm Khuym onboarding is current via .khuym/onboarding.json
+   → If missing or stale: return to Plugin Onboarding above
+
 1. Check for .khuym/ directory in project root
    → If missing: mkdir -p .khuym/ and create defaults below
    
@@ -71,7 +100,7 @@ On every session start, before doing anything else:
    
 4. Check .khuym/config.json
    → If missing: create {} (all features enabled by default — absent=enabled)
-   
+
 5. Check for history/learnings/critical-patterns.md
    → If exists: read it now. These are mandatory context for all subsequent skills.
 ```
@@ -202,6 +231,7 @@ Watch for these violations. Pause and surface them immediately when detected:
 
 ```
 .khuym/
+  onboarding.json   ← Khuym plugin onboarding status + managed asset versions
   STATE.md          ← Current phase, focus, blockers (update at every phase transition)
   config.json       ← Feature toggles (absent=enabled)
   HANDOFF.json      ← Session resume data (write when pausing)

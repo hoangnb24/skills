@@ -5,6 +5,8 @@ description: Use when creating a new khuym skill, editing an existing khuym skil
 
 # Writing Khuym Skills
 
+If `.khuym/onboarding.json` is missing or stale for the current repo, stop and invoke `khuym:using-khuym` before continuing.
+
 ## Overview
 
 Skills are code. They have bugs. Test them before deploying.

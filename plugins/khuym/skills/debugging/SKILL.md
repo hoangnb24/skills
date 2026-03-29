@@ -5,6 +5,8 @@ description: Systematic debugging for blocked workers, test failures, build erro
 
 # Debugging
 
+If `.khuym/onboarding.json` is missing or stale for the current repo, stop and invoke `khuym:using-khuym` before continuing.
+
 Resolve blockers and failures systematically. Do not guess — triage first, then reproduce, then diagnose, then fix.
 
 ## When to Use This Skill

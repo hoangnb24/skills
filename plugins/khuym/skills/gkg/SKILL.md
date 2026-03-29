@@ -14,6 +14,8 @@ metadata:
 
 # gkg — Codebase Intelligence
 
+If `.khuym/onboarding.json` is missing or stale for the current repo, stop and invoke `khuym:using-khuym` before continuing.
+
 ## When to Use
 
 - User asks: "What's the architecture of this project?"

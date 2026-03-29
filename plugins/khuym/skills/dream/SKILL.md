@@ -13,6 +13,8 @@ metadata:
 
 # Dream Skill
 
+If `.khuym/onboarding.json` is missing or stale for the current repo, stop and invoke `khuym:using-khuym` before continuing.
+
 This skill performs one manual consolidation pass. It updates durable learnings in place and keeps
 the write surface narrow: `history/learnings/*.md`. It may propose critical promotions, but it must
 never edit `history/learnings/critical-patterns.md` without explicit user approval.

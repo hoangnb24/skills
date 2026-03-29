@@ -1,6 +1,6 @@
 {
   "name": "khuym",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "Khuym: multi-agent coordination skills for planning, validation, swarming, and execution",
   "author": {
     "name": "hoangnb24",
@@ -30,6 +30,7 @@
     ],
     "websiteURL": "https://github.com/hoangnb24/skills",
     "defaultPrompt": [
+      "Onboard this repository for Khuym and start with using-khuym.",
       "Help me route a feature request through the full Khuym workflow.",
       "Plan and validate a feature before we write code.",
       "Run a review and compounding pass on completed work."

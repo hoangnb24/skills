@@ -15,6 +15,8 @@ metadata:
 
 # Exploring Skill
 
+If `.khuym/onboarding.json` is missing or stale for the current repo, stop and invoke `khuym:using-khuym` before continuing.
+
 Research shows that 5–10 minutes spent extracting decisions before any planning begins
 prevents hours of back-and-forth caused by planner assumptions ([GSD README](https://github.com/gsd-build/get-shit-done)).
 This skill is that conversation. Teams who skip it get reasonable defaults; teams who use it get their vision.

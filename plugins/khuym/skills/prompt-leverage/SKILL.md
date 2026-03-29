@@ -5,6 +5,8 @@ description: Strengthen a raw user prompt into an execution-ready instruction se
 
 # Prompt Leverage
 
+If `.khuym/onboarding.json` is missing or stale for the current repo, stop and invoke `khuym:using-khuym` before continuing.
+
 Turn the user's current prompt into a stronger working prompt without changing the underlying intent. Preserve the task, fill in missing execution structure, and add only enough scaffolding to improve reliability.
 
 ## Workflow

@@ -10,6 +10,8 @@ metadata:
 
 # Validating
 
+If `.khuym/onboarding.json` is missing or stale for the current repo, stop and invoke `khuym:using-khuym` before continuing.
+
 > "Don't jump off the wall without checking."
 > — The khuym principle on verification
 

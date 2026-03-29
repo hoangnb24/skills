@@ -11,6 +11,8 @@ metadata:
 
 # Reviewing
 
+If `.khuym/onboarding.json` is missing or stale for the current repo, stop and invoke `khuym:using-khuym` before continuing.
+
 Post-execution quality verification. You are the last automated gate before a feature ships. Your job is to catch what escaped execution — not just confirm tasks are closed, but verify that the work is **correct, safe, and complete**.
 
 Research confirms this is not optional: removing the verification agent degrades fix precision most sharply ([Multi-Agent Bug Detection, IJRASET 2025](https://ieeexplore.ieee.org/document/11135756/)). Multi-perspective review covers 7.8 dimensions vs. 1–3 for a single reviewer ([Hydra-Reviewer, IEEE TSE 2025](https://ieeexplore.ieee.org/document/11203269/)).

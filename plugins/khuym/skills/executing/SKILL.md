@@ -9,6 +9,8 @@ description: >-
 
 # Executing — Worker Loop
 
+If `.khuym/onboarding.json` is missing or stale for the current repo, stop and invoke `khuym:using-khuym` before continuing.
+
 You are a **worker subagent** spawned by swarming. Your job is one thing: implement beads.
 Self-route from the live bead graph, close work cleanly, report back. Nothing else.
 
