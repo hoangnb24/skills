@@ -14,16 +14,21 @@ Bootstrap meta-skill. Load this first. It tells you which skill to invoke next a
 
 ## Plugin Onboarding
 
-Before any normal bootstrap, verify that the current repo is onboarded for the Khuym plugin.
+Before any normal bootstrap, verify that the current machine has Node.js available and that the current repo is onboarded for the Khuym plugin.
 
-Run `scripts/onboard_khuym.py --repo-root <repo-root>` from this skill directory and inspect the JSON result.
+Run `node --version` first.
+
+- If `node` is missing or too old: stop immediately, tell the user Khuym requires Node.js 18+, and ask them to install or upgrade Node before continuing.
+
+Then run `node scripts/onboard_khuym.mjs --repo-root <repo-root>` from this skill directory and inspect the JSON result.
 
 - If `status = "up_to_date"`: proceed immediately.
 - If onboarding is missing or stale:
   - summarize what the script wants to create or update
+  - if `status = "missing_runtime"`: stop, tell the user Khuym requires Node.js 18+, and ask them to install or upgrade Node before continuing
   - if `requires_confirmation = true`, explain that an existing `compact_prompt` was found and Khuym will preserve it unless the user explicitly approves replacement
   - ask before making repo changes
-  - after approval, run `scripts/onboard_khuym.py --repo-root <repo-root> --apply`
+  - after approval, run `node scripts/onboard_khuym.mjs --repo-root <repo-root> --apply`
   - only use `--allow-compact-prompt-replace` when the user explicitly approved replacing the repo's existing compaction prompt
 
 Onboarding installs or updates:
@@ -31,7 +36,7 @@ Onboarding installs or updates:
 - root `AGENTS.md` from the plugin's `AGENTS.template.md`
 - repo-local `.codex/config.toml`
 - repo-local `.codex/hooks.json`
-- repo-local `.codex/hooks/khuym_*.py`
+- repo-local `.codex/hooks/khuym_*.mjs`
 - `.khuym/onboarding.json`
 
 If onboarding is not complete, do not continue into the rest of the Khuym workflow.
