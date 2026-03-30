@@ -5,7 +5,7 @@
     "url": "https://github.com/hoangnb24"
   },
   "metadata": {
-    "description": "Khuym: multi-agent coordination skills for agentic software development"
+    "description": "Khuym: validate-first multi-agent skills for phase contracts, stories, swarming, and execution"
   },
   "plugins": [
     {
@@ -22,13 +22,13 @@
     },
     {
       "name": "khuym:planning",
-      "description": "Research codebase, synthesize approach, decompose into executable beads",
+      "description": "Research codebase, write a phase contract and story map, then decompose into executable beads",
       "source": "./plugins/khuym/skills/planning",
       "strict": false
     },
     {
       "name": "khuym:validating",
-      "description": "Plan verification (8 dimensions), spike execution for HIGH risk, bead polishing",
+      "description": "Verify phase contract, story map, and bead graph; spike HIGH risk; polish execution readiness",
       "source": "./plugins/khuym/skills/validating",
       "strict": false
     },

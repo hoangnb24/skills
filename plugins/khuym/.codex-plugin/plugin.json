@@ -1,7 +1,7 @@
 {
   "name": "khuym",
-  "version": "2.2.1",
-  "description": "Khuym: multi-agent coordination skills for planning, validation, swarming, and execution",
+  "version": "2.2.2",
+  "description": "Khuym: validate-first multi-agent skills for phase contracts, stories, swarming, and execution",
   "author": {
     "name": "hoangnb24",
     "url": "https://github.com/hoangnb24"
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Khuym",
     "shortDescription": "Validate-first skills for agentic software delivery",
-    "longDescription": "Bundles the Khuym workflow skills and standalone utilities for planning, validation, swarming, review, and learning capture.",
+    "longDescription": "Bundles the Khuym workflow skills and standalone utilities for phase planning, story mapping, validation, swarming, review, and learning capture.",
     "developerName": "hoangnb24",
     "category": "Productivity",
     "capabilities": [

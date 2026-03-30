@@ -1,7 +1,7 @@
 {
   "name": "khuym",
-  "version": "2.2.1",
-  "description": "Khuym: multi-agent coordination skills for planning, validation, swarming, and execution",
+  "version": "2.2.2",
+  "description": "Khuym: validate-first multi-agent skills for phase contracts, stories, swarming, and execution",
   "skills": [
     { "name": "khuym:using-khuym", "path": "../plugins/khuym/skills/using-khuym/SKILL.md" },
     { "name": "khuym:exploring", "path": "../plugins/khuym/skills/exploring/SKILL.md" },
