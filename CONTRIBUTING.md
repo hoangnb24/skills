@@ -2,6 +2,14 @@
 
 This guide covers the skill format, directory conventions, and how this repo packages skills for Codex and Claude Code.
 
+## Plugin Packaging Overview
+
+This repository is a Codex plugin repo. The installable Codex plugin is `khuym`.
+
+- Codex plugin root: [`plugins/khuym/`](plugins/khuym/)
+- Codex plugin manifest: [`plugins/khuym/.codex-plugin/plugin.json`](plugins/khuym/.codex-plugin/plugin.json)
+- Repo marketplace: [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json)
+
 ## How Skills Work
 
 The canonical skill directories live under [`plugins/khuym/skills/`](plugins/khuym/skills).
@@ -121,11 +129,17 @@ Tips:
 Preferred Codex flow:
 
 ```bash
-# add the repo marketplace in Codex
-# then install the `khuym` plugin
+git clone https://github.com/hoangnb24/skills.git
+cd skills
 ```
 
-Then add the repo marketplace from [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) in Codex and install the `khuym` plugin.
+Then:
+
+1. Add the repo marketplace from [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) in Codex
+2. Install the `khuym` plugin from that marketplace
+3. Restart Codex if the marketplace does not appear immediately
+
+Codex plugins are not installed directly from a GitHub URL. The standard flow is local clone -> local marketplace -> plugin install.
 
 ## Adding a Skill to This Repo
 

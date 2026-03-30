@@ -1,6 +1,8 @@
 # Khuym Skills
 
-Khuym is a validate-first workflow for agentic software development. It is built for teams that want to turn ambiguous requests into reviewed, production-ready changes without skipping planning or quality gates.
+Khuym is a Codex plugin repo that packages a validate-first workflow for agentic software development. The installable Codex plugin in this repository is `khuym`, shipped at [`plugins/khuym/`](plugins/khuym/).
+
+Khuym is built for teams that want to turn ambiguous requests into reviewed, production-ready changes without skipping planning or quality gates.
 
 ## Current Situation
 
@@ -84,11 +86,34 @@ The README is the top-level overview. The operational contract lives in the repo
 
 This repo now ships a Codex-standard repo marketplace in [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) and a packaged plugin at [`plugins/khuym/.codex-plugin/plugin.json`](plugins/khuym/.codex-plugin/plugin.json).
 
-### Inside Codex
+### Standard Install Flow
 
-The canonical skill layout now lives directly under [`plugins/khuym/skills/`](plugins/khuym/skills).
+Codex plugins are installed from a local marketplace. The standard flow is:
 
-Restart Codex after adding the marketplace, then install the `khuym` plugin from the local repo marketplace.
+1. Clone this repository locally:
+   ```bash
+   git clone https://github.com/hoangnb24/skills.git
+   cd skills
+   ```
+2. In Codex, add this repository's marketplace file:
+   ```text
+   /absolute/path/to/skills/.agents/plugins/marketplace.json
+   ```
+3. Restart Codex if the new marketplace does not appear immediately.
+4. Install the `khuym` plugin from that marketplace.
+5. Start a new Codex session and ask for a Khuym workflow task.
+
+The canonical skill layout lives directly under [`plugins/khuym/skills/`](plugins/khuym/skills).
+
+### Verify The Plugin Layout
+
+This repo follows the standard Codex plugin structure:
+
+- Repo marketplace: [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json)
+- Plugin manifest: [`plugins/khuym/.codex-plugin/plugin.json`](plugins/khuym/.codex-plugin/plugin.json)
+- Plugin skills: [`plugins/khuym/skills/`](plugins/khuym/skills)
+
+There is no standard OpenAI-documented "install directly from a GitHub URL" flow for Codex plugins. The supported pattern is to clone the repo locally, add its marketplace, then install the plugin from that marketplace.
 
 ## Install In Claude Code
 
